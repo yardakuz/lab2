@@ -59,26 +59,32 @@ public class TabulatedFunction {
 
     public FunctionPoint getPoint(int index)       //метод, возвращающий ссылку на объект, описывающий точку с данным номером
     {
-        if(index < 0 || index > NumberPoints) return null;
         return this.points[index];
     }
 
     public void setPoint(int index, FunctionPoint point)    //метод, заменяющий точку с данным индексом на другую
     {
-        if (index < 0 || index > NumberPoints || point.getX() > this.getRightDomainBorder() || point.getX() < this.getLeftDomainBorder()) return;
         if (index == 0)
         {
-            if (point.getX() < this.points[index + 1].getX()) points[index] = new FunctionPoint(point);
+            if (point.getX() < this.points[index + 1].getX())
+            {
+                points[index] = new FunctionPoint(point);
+            }
         }
-        if (index == NumberPoints)
+        else if (index == NumberPoints)
         {
-            if(point.getX() > this.points[index - 1].getX()) points[index] = new FunctionPoint(point);
+            if(point.getX() > this.points[index - 1].getX())
+            {
+                points[index] = new FunctionPoint(point);
+            }
         }
         else
         {
-            if( (point.getX() > this.points[index-1].getX()) && (point.getX() < this.points[index-1].getX())) points[index] = new FunctionPoint(point);
+            if( (point.getX() > this.points[index-1].getX()) && (point.getX() < this.points[index+1].getX()))
+            {
+                points[index] = new FunctionPoint(point);
+            }
         }
-
     }
 
     public double getPointX(int index)          //метод, возвращающий значение абсциссы точки с данным номером
@@ -106,51 +112,64 @@ public class TabulatedFunction {
 
     public void deletePoint(int index)      //метод, удаляющий заданную точку
     {
-        if (index < 0 || index > NumberPoints) return;
         System.arraycopy(points, index + 1, points, index, this.points.length - index - 1);
         --NumberPoints;
     }
 
-    public void addPoint(FunctionPoint point)       //метод, добавляющий новую точку
+    public void addPoint(FunctionPoint point)               //метод, добавляющий новую точку
     {
-        int index = 0;
-        if(point.getX() > this.points[NumberPoints - 1].getX())
+        if (point.getX() < getLeftDomainBorder())
         {
-            index = NumberPoints + 1;
-        }
-        else
-        {
-            while (this.points[index].getX() < point.getX()) ++index;
-        }
-
-        if (index < NumberPoints)
-        {
-            if (NumberPoints <= this.points.length)
+            if (getPointsCount() == points.length)
             {
-                FunctionPoint[] tmp = new FunctionPoint[NumberPoints];
-                System.arraycopy(points, 0, tmp, 0, tmp.length);
-                this.points = new FunctionPoint[NumberPoints + 1];
-                ++NumberPoints;
-                System.arraycopy(tmp, 0, points, 0, index);
-                this.points[index] = point;
+                FunctionPoint[] old = new FunctionPoint[points.length];
+                System.arraycopy(points, 0, old, 0, points.length);
+
+                points = new FunctionPoint[points.length + 1];
+                System.arraycopy(old, 0, points, 0, old.length);
             }
-            else
-            {
-                System.arraycopy(points, index, points, index + 1, NumberPoints - index);
-                this.points[index] = point;
-            }
+            System.arraycopy(points, 0, points, 1, getPointsCount());
+            setPoint(0, point);
+            NumberPoints = getPointsCount() + 1;
+
+            return;
         }
-        else
+        else if (point.getX() > getLeftDomainBorder() && point.getX() < getRightDomainBorder())
         {
-            FunctionPoint[] tmp = new FunctionPoint[getPointsCount()];
-            System.arraycopy(points,0,tmp,0,tmp.length);
-            this.points = new FunctionPoint[getPointsCount() + 1];
-            NumberPoints++;
-            System.arraycopy(tmp,0,points,0,tmp.length);
-            this.points[NumberPoints-1] = point;
+        for (int i = 0; i < getPointsCount(); ++i)
+        {
+            if (point.getX() >= getPointX(i) && point.getX() <= getPointX(i + 1))
+            {
+                if (getPointsCount() == points.length)
+                {
+                    FunctionPoint[] old = new FunctionPoint[points.length];
+                    System.arraycopy(points, 0, old, 0, points.length);
 
+                    points = new FunctionPoint[points.length + 1];
+                    System.arraycopy(old, 0, points, 0, old.length);
+                }
+                System.arraycopy(points, i + 1, points, i + 2, getPointsCount() - i - 1);
+                setPoint(i + 1, point);
+                NumberPoints = getPointsCount() + 1;
+
+                return;
+            }
+        }
         }
 
+        else if(point.getX() > getLeftDomainBorder())
+        {
+            if (getPointsCount() == points.length)
+            {
+                FunctionPoint[] old = new FunctionPoint[points.length];
+                System.arraycopy(points, 0, old, 0, points.length);
+
+                points = new FunctionPoint[points.length + 1];
+                System.arraycopy(old, 0, points, 0, old.length);
+            }
+            setPoint(NumberPoints, point);
+            NumberPoints = getPointsCount() + 1;
+        }
     }
 
     public void print() {
