@@ -54,7 +54,7 @@ public class TabulatedFunction {
 
     public int getPointsCount()        //метод, возвращающий количество точек
     {
-            return NumberPoints;
+        return NumberPoints;
     }
 
     public FunctionPoint getPoint(int index)       //метод, возвращающий ссылку на объект, описывающий точку с данным номером
@@ -116,18 +116,20 @@ public class TabulatedFunction {
         --NumberPoints;
     }
 
+    public void gotoBigger()        //функция, добавляющая массиву точек 5 ячеек
+    {
+        FunctionPoint[] old = new FunctionPoint[points.length];
+        System.arraycopy(points, 0, old, 0, points.length);
+
+        points = new FunctionPoint[points.length + 5];
+        System.arraycopy(old, 0, points, 0, old.length);
+    }
+
     public void addPoint(FunctionPoint point)               //метод, добавляющий новую точку
     {
         if (point.getX() < getLeftDomainBorder())
         {
-            if (getPointsCount() == points.length)
-            {
-                FunctionPoint[] old = new FunctionPoint[points.length];
-                System.arraycopy(points, 0, old, 0, points.length);
-
-                points = new FunctionPoint[points.length + 1];
-                System.arraycopy(old, 0, points, 0, old.length);
-            }
+            if (getPointsCount() == points.length) gotoBigger();
             System.arraycopy(points, 0, points, 1, getPointsCount());
             setPoint(0, point);
             NumberPoints = getPointsCount() + 1;
@@ -136,37 +138,23 @@ public class TabulatedFunction {
         }
         else if (point.getX() > getLeftDomainBorder() && point.getX() < getRightDomainBorder())
         {
-        for (int i = 0; i < getPointsCount(); ++i)
-        {
-            if (point.getX() >= getPointX(i) && point.getX() <= getPointX(i + 1))
+            for (int i = 0; i < getPointsCount(); ++i)
             {
-                if (getPointsCount() == points.length)
+                if (point.getX() >= getPointX(i) && point.getX() <= getPointX(i + 1))
                 {
-                    FunctionPoint[] old = new FunctionPoint[points.length];
-                    System.arraycopy(points, 0, old, 0, points.length);
+                    if (getPointsCount() == points.length) gotoBigger();
+                    System.arraycopy(points, i + 1, points, i + 2, getPointsCount() - i - 1);
+                    setPoint(i + 1, point);
+                    NumberPoints = getPointsCount() + 1;
 
-                    points = new FunctionPoint[points.length + 1];
-                    System.arraycopy(old, 0, points, 0, old.length);
+                    return;
                 }
-                System.arraycopy(points, i + 1, points, i + 2, getPointsCount() - i - 1);
-                setPoint(i + 1, point);
-                NumberPoints = getPointsCount() + 1;
-
-                return;
             }
-        }
         }
 
         else if(point.getX() > getLeftDomainBorder())
         {
-            if (getPointsCount() == points.length)
-            {
-                FunctionPoint[] old = new FunctionPoint[points.length];
-                System.arraycopy(points, 0, old, 0, points.length);
-
-                points = new FunctionPoint[points.length + 1];
-                System.arraycopy(old, 0, points, 0, old.length);
-            }
+            if (getPointsCount() == points.length) gotoBigger();
             setPoint(NumberPoints, point);
             NumberPoints = getPointsCount() + 1;
         }

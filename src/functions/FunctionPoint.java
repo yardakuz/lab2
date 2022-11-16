@@ -28,5 +28,4 @@ public class FunctionPoint {
     {
         return y;
     }       //геттер для y
-
 }
